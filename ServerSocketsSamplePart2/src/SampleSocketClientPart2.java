@@ -6,14 +6,9 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-public class SampleSocketClient
+public class SampleSocketClientPart2
 {
 	Socket server;
-	
-	public SampleSocketClient()
-	{
-		
-	}
 	
 	public void connect(String address, int port)
 	{
@@ -21,12 +16,12 @@ public class SampleSocketClient
 		{
 			server = new Socket(address, port);
 			System.out.println("Client connected");
-		} 
+		}
 		
 		catch (UnknownHostException e)
 		{
 			e.printStackTrace();
-		} 
+		}
 		
 		catch (IOException e)
 		{
@@ -48,14 +43,12 @@ public class SampleSocketClient
 				BufferedReader in = new BufferedReader(new InputStreamReader(server.getInputStream()));)
 		{
 			String line = "";
-			
 			while(true)
 			{
 				try
 				{
 					System.out.println("Waiting for input");
 					line = si.nextLine();
-					
 					if(!"quit".equalsIgnoreCase(line))
 					{
 						out.println(line);
@@ -67,11 +60,26 @@ public class SampleSocketClient
 					}
 					
 					line = "";
+					//Added server reply handling in client
+					String fromServer = in.readLine();
+					
+					if(fromServer != null)
+					{
+						System.out.println("Reply from server: " + fromServer);
+					}
+					
+					else
+					{
+						System.out.println("Server disconnected");
+						break;
+					}
+					//end server reply handling in client
 				}
 				
 				catch(Exception e)
 				{
 					System.out.println("Connection dropped");
+					e.printStackTrace();
 					break;
 				}
 			}
@@ -98,7 +106,7 @@ public class SampleSocketClient
 			{
 				server.close();
 				System.out.println("Closed socket");
-			} 
+			}
 			
 			catch (IOException e)
 			{
@@ -109,14 +117,13 @@ public class SampleSocketClient
 	
 	public static void main(String[] args)
 	{
-		SampleSocketClient client = new SampleSocketClient();
+		SampleSocketClientPart2 client = new SampleSocketClientPart2();
 		client.connect("127.0.0.1", 3002);
-		
 		try
 		{
 			//if start is private, it's valid here since this main is part of the class
 			client.start();
-		} 
+		}
 		
 		catch (IOException e)
 		{
