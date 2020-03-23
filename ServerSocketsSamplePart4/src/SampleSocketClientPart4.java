@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-public class SampleSocketClientPart3
+public class SampleSocketClientPart4
 {
 	Socket server;
 	
@@ -41,6 +41,30 @@ public class SampleSocketClientPart3
 				ObjectOutputStream out = new ObjectOutputStream(server.getOutputStream());
 				ObjectInputStream in = new ObjectInputStream(server.getInputStream());)
 		{
+			//let's block the thread for a sec to gather a username
+			String name ="";
+			do
+			{
+				System.out.println("Please enter a username to continue");
+				name = si.nextLine();
+				
+				if(name == null || name.trim().length() == 0)
+				{
+					name="";
+				}
+			}
+			
+			while(!server.isClosed() && name != null && name.length() == 0);
+			//we should have a name, let's tell our server
+			PayloadPart4 p = new PayloadPart4();
+			//we can also default payloadtype in payload
+			//to a desired value, though it's good to be clear
+			//what we're sending
+			p.setPayloadType(PayloadTypePart4.CONNECT);
+			p.setMessage(name);
+			out.writeObject(p);
+			
+			
 			//Thread to listen for keyboard input so main thread isn't blocked
 			Thread inputThread = new Thread()
 			{
@@ -55,15 +79,24 @@ public class SampleSocketClientPart3
 							String line = si.nextLine();
 							if(!"quit".equalsIgnoreCase(line) && line != null)
 							{
-								//grab line and write it to the stream
-								out.writeObject(line);
+								//grab line and throw it into a payload object
+								PayloadPart4 p = new PayloadPart4();
+								//we can also default payloadtype in payload
+								//to a desired value, though it's good to be clear
+								//what we're sending
+								p.setPayloadType(PayloadTypePart4.MESSAGE);
+								p.setMessage(line);
+								out.writeObject(p);
 							}
 							
 							else
 							{
 								System.out.println("Stopping input thread");
 								//we're quitting so tell server we disconnected so it can broadcast
-								out.writeObject("bye");
+								PayloadPart4 p = new PayloadPart4();
+								p.setPayloadType(PayloadTypePart4.DISCONNECT);
+								p.setMessage("bye");
+								out.writeObject(p);
 								break;
 							}
 						}
@@ -91,11 +124,12 @@ public class SampleSocketClientPart3
 				{
 					try
 					{
-						String fromServer;
-						//while we're connected, listen for strings from server
-						while(!server.isClosed() && (fromServer = (String)in.readObject()) != null)
+						PayloadPart4 fromServer;
+						//while we're connected, listen for payloads from server
+						while(!server.isClosed() && (fromServer = (PayloadPart4)in.readObject()) != null)
 						{
-							System.out.println(fromServer);
+							//System.out.println(fromServer);
+							processPayload(fromServer);
 						}
 						
 						System.out.println("Stopping server listen thread");
@@ -148,6 +182,32 @@ public class SampleSocketClientPart3
 		}
 	}
 	
+	private void processPayload(PayloadPart4 payload)
+	{
+		System.out.println(payload);
+		switch(payload.getPayloadType())
+		{
+		case CONNECT:
+			System.out.println(
+					String.format("Client \"%s\" connected", payload.getMessage())
+			);
+			break;
+		case DISCONNECT:
+			System.out.println(
+					String.format("Client \"%s\" disconnected", payload.getMessage())
+			);
+			break;
+		case MESSAGE:
+			System.out.println(
+					String.format("%s", payload.getMessage())
+			);
+			break;
+		default:
+			System.out.println("Unhandled payload type: " + payload.getPayloadType().toString());
+			break;
+		}
+	}
+	
 	private void close()
 	{
 		if(server != null)
@@ -167,8 +227,9 @@ public class SampleSocketClientPart3
 	
 	public static void main(String[] args)
 	{
-		SampleSocketClientPart3 client = new SampleSocketClientPart3();
-		client.connect("127.0.0.1", 3005);//uploaded server port via eclipse Run Configurations
+		SampleSocketClientPart4 client = new SampleSocketClientPart4();
+		client.connect("127.0.0.1", 3002);
+		
 		try
 		{
 			//if start is private, it's valid here since this main is part of the class
