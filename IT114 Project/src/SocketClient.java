@@ -14,7 +14,7 @@ public class SocketClient
 		try
 		{
 			server = new Socket(address, port);
-			System.out.println("Client connected");
+			System.out.println("Client connected!");
 		}
 		
 		catch (UnknownHostException e)
@@ -44,7 +44,7 @@ public class SocketClient
 			
 			do
 			{
-				System.out.println("Please enter a username to continue");
+				System.out.println("Please enter a username to continue.");
 				name = si.nextLine();
 				
 				if(name == null || name.trim().length() == 0)
@@ -69,7 +69,7 @@ public class SocketClient
 					{
 						while(!server.isClosed())
 						{
-							System.out.println("Waiting for input");
+							System.out.println("Waiting for input...");
 							String line = si.nextLine();
 							
 							if(!"quit".equalsIgnoreCase(line) && line != null)

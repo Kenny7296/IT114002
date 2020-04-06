@@ -23,7 +23,7 @@ public class SocketServer
 		startQueueReader();
 		loadScore();
 		saveScore(1000);
-		System.out.println("Waiting for client");
+		System.out.println("Waiting for client...");
 		
 		try (ServerSocket serverSocket = new ServerSocket(port);)
 		{
@@ -36,7 +36,7 @@ public class SocketServer
 					ServerThread thread = new ServerThread(client, this);
 					thread.start();
 					clients.add(thread);
-					System.out.println("Client added to clients pool");
+					System.out.println("Client added to the pool of clients!");
 				}
 				
 				catch(IOException e)
