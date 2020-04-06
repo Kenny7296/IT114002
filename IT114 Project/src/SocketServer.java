@@ -168,7 +168,7 @@ public class SocketServer
 	
 	public synchronized void broadcast(Payload payload)
 	{
-		System.out.println("Sending message to " + clients.size() + " clients");
+		System.out.println("Sending message to " + clients.size() + " clients.");
 		storeInFile(payload.getMessage());
 		Iterator<ServerThread> iter = clients.iterator();
 		
