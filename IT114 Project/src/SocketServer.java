@@ -123,6 +123,7 @@ public class SocketServer
 				(name!=null?name:"[Name Error]") 
 				+ (msg != null?": "+ msg:"")
 		);
+		
 		broadcast(payload);
 	}
 	

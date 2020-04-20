@@ -13,7 +13,7 @@ public class ServerThreadPart5 extends Thread
 	//more easily
 	private String clientName = "Anon";
 	
-	public ServerThreadPart5(Socket myClient, SampleSocketServerPart5 server) throws IOException
+	public ServerThreadPart5(Socket myClient, String clientName, SampleSocketServerPart5 server) throws IOException
 	{
 		this.client = myClient;
 		this.server = server;

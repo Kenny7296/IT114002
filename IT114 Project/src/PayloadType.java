@@ -2,6 +2,6 @@ public enum PayloadType
 {
 	CONNECT,
 	DISCONNECT,
-	CLIENT_NAME,
+	UPDATE_NAME,
 	MESSAGE
 }

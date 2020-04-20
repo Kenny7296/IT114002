@@ -11,7 +11,6 @@ public class ServerThread extends Thread
 	private boolean isRunning = false;
 	private SocketServer server;
 	private String clientName = "Anon";
-	
 	public ServerThread(Socket myClient, SocketServer server) throws IOException
 	{
 		this.client = myClient;
@@ -51,10 +50,8 @@ public class ServerThread extends Thread
 			return false;
 		}
 	}
-	
 	@Deprecated
-	public boolean send(String message)
-	{
+	public boolean send(String message) {
 		Payload payload = new Payload();
 		payload.setPayloadType(PayloadType.MESSAGE);
 		payload.setMessage(message);
