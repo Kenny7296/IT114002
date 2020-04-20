@@ -28,22 +28,21 @@ public class Payload implements Serializable
 		return this.payloadType;
 	}
 	
-	private String clientName;
-	
-	public void setClientName(String n)
+	private int number;
+	public void setNumber(int n)
 	{
-		this.clientName = n;
+		this.number = n;
 	}
 	
-	public String getClientName()
+	public int getNumber()
 	{
-		return this.clientName;
+		return this.number;
 	}
 	
 	@Override
 	public String toString()
 	{
-		return String.format("Type[%s], Client[%s], Message[%s]",
-					getPayloadType().toString(), getClientName(), getMessage());
+		return String.format("Type[%s], Number[%s], Message[%s]",
+					getPayloadType().toString(), getNumber(), getMessage());
 	}
 }

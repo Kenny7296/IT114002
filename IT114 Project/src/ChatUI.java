@@ -78,12 +78,6 @@ public class ChatUI
 		usernameField.setHorizontalAlignment(JTextField.CENTER);
 		usernameField.setPreferredSize(new Dimension(160, 30));
 		
-		// IP address text field
-		JTextField defaultIP = new JTextField();
-		defaultIP.setHorizontalAlignment(JTextField.CENTER);
-		defaultIP.setPreferredSize(new Dimension(150, 30));
-		defaultIP.setText("123.123.123.123");
-		
 		// Port number text field
 		JTextField defaultPort = new JTextField();
 		defaultPort.setHorizontalAlignment(JTextField.CENTER);
@@ -138,7 +132,6 @@ public class ChatUI
 		
 		// add username input and connect input 
 		topConnect.add(usernameField);
-		topConnect.add(defaultIP);
 		topConnect.add(defaultPort);
 		topConnect.add(connect);
 		
