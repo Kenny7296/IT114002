@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.Socket;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -14,7 +15,8 @@ import javax.swing.JTextField;
 
 public class ChatUI
 {
-	public SocketClient client = new SocketClient();
+	//public SocketClient client = new SocketClient();
+	//Socket client;
 	
 	public static void main(String[] args)
 	{
@@ -78,7 +80,7 @@ public class ChatUI
 		usernameField.setHorizontalAlignment(JTextField.CENTER);
 		usernameField.setPreferredSize(new Dimension(160, 30));
 		
-		// Port number text field
+		// port number text field
 		JTextField defaultPort = new JTextField();
 		defaultPort.setHorizontalAlignment(JTextField.CENTER);
 		defaultPort.setPreferredSize(new Dimension(140, 30));
