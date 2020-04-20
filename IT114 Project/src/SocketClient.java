@@ -174,12 +174,12 @@ public class SocketClient
 		
 		case CONNECT:
 			System.out.println(
-					String.format("Client \"%s\" connected", payload.getMessage())
+					String.format("Client \"%s\" has connected", payload.getMessage())
 			);
 			break;
 		case DISCONNECT:
 			System.out.println(
-					String.format("Client \"%s\" disconnected", payload.getMessage())
+					String.format("Client \"%s\" has disconnected", payload.getMessage())
 			);
 			break;
 		case MESSAGE:

@@ -1,4 +1,3 @@
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -8,7 +7,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import com.google.gson.Gson;
 
 public class SocketServer
 {
@@ -21,8 +19,6 @@ public class SocketServer
 	{
 		this.port = port;
 		startQueueReader();
-		loadScore();
-		saveScore(1000);
 		System.out.println("Waiting for client...");
 		
 		try (ServerSocket serverSocket = new ServerSocket(port);)
@@ -64,42 +60,6 @@ public class SocketServer
 			{
 				e.printStackTrace();
 			}
-		}
-	}
-	
-	void loadScore()
-	{
-		try
-		{
-			Gson gson = new Gson();
-			ScoreState ss = gson.fromJson(new FileReader("score.json"), ScoreState.class);
-			long s = (long) ss.scores.get(0).score;
-			System.out.println("Loaded score: " + s);
-		} 
-		
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	void saveScore(int score)
-	{
-		ScoreState ss = new ScoreState();
-		ss.scores.add(new Score("Bob", 1000));
-		ss.scores.add(new Score("Joe", 500));
-		System.out.println(ss.toString());
-		
-		try(FileWriter writer = new FileWriter("score.json",false))
-		{
-			Gson gson = new Gson();
-			writer.write(gson.toJson(ss));
-			writer.flush();
-		}
-		
-		catch(Exception e)
-		{
-			e.printStackTrace();
 		}
 	}
 	

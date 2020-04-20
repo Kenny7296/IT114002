@@ -5,7 +5,6 @@ public class Payload implements Serializable
 	private static final long serialVersionUID = -6625037986217386003L;
 	
 	private String message;
-	private String clientName;
 	
 	public void setMessage(String s)
 	{
@@ -29,9 +28,11 @@ public class Payload implements Serializable
 		return this.payloadType;
 	}
 	
-	public void setClientName(String name)
+	private String clientName;
+	
+	public void setClientName(String n)
 	{
-		this.clientName = name;
+		this.clientName = n;
 	}
 	
 	public String getClientName()
