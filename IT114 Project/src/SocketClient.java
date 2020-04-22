@@ -1,8 +1,3 @@
-import java.awt.BorderLayout; 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,13 +6,6 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 public class SocketClient
 {
@@ -243,10 +231,11 @@ public class SocketClient
 		}
 	}
 	
-	public void postConnectionData()
+	public void postConnectionData(String clientName)
 	{
 		Payload payload = new Payload();
 		payload.setPayloadType(PayloadType.CONNECT);
+		payload.setMessage(clientName);
 		toServer.add(payload);
 	}
 	
@@ -292,6 +281,10 @@ public class SocketClient
 			System.out.println(
 					String.format("%s", payload.getMessage())
 			);
+			if(messageListener != null)
+			{
+				messageListener.onReceivedMessage(String.format("%s ", payload.getMessage()));
+			}
 			break;
 		case STATE_SYNC:
 			System.out.println("Sync");
@@ -394,7 +387,7 @@ public class SocketClient
 		chatArea.add(chatTextArea, BorderLayout.CENTER);
 		chatArea.setBorder(BorderFactory.createLineBorder(Color.black));
 		
-		// add user area to chat area
+		// add user info to chat area
 		usersArea.add(usersTextArea, BorderLayout.CENTER);
 		usersArea.setBorder(BorderFactory.createLineBorder(Color.green));
 		

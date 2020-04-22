@@ -43,7 +43,7 @@ public class SocketServer
 		this.port = port;
 		startQueueReader();
 		
-		System.out.println("Waiting for client");
+		System.out.println("Waiting for client...");
 		try (ServerSocket serverSocket = new ServerSocket(port);)
 		{
 			while(SocketServer.isRunning)
@@ -56,7 +56,7 @@ public class SocketServer
 					thread.start();
 					thread.setClientId(getNextId());
 					clients.add(thread);
-					System.out.println("Client added to clients pool");
+					System.out.println("Client added to clients pool!");
 				}
 				
 				catch(IOException e)
@@ -78,7 +78,7 @@ public class SocketServer
 			{
 				isRunning = false;
 				Thread.sleep(50);
-				System.out.println("closing server socket");
+				System.out.println("Closing server socket...");
 			}
 			
 			catch (Exception e)
@@ -90,7 +90,7 @@ public class SocketServer
 	
 	void startQueueReader()
 	{
-		System.out.println("Preparing Queue Reader");
+		System.out.println("Preparing Queue Reader...");
 		Thread queueReader = new Thread()
 		{
 			@Override
@@ -122,7 +122,7 @@ public class SocketServer
 		};
 		
 		queueReader.start();
-		System.out.println("Started Queue Reader");
+		System.out.println("Started Queue Reader!");
 	}
 	
 	@Deprecated
@@ -207,11 +207,11 @@ public class SocketServer
 			}
 		}
 		
-		System.out.println("Starting Server");
+		System.out.println("Starting Server...");
 		SocketServer server = new SocketServer();
-		System.out.println("Listening on port " + port);
+		System.out.println("Listening on port " + port + "...");
 		server.start(port);
-		System.out.println("Server Stopped");
+		System.out.println("Server Stopped!");
 	}
 }
 

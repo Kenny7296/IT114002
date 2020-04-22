@@ -10,7 +10,7 @@ public class ServerThread extends Thread
 	private ObjectOutputStream out;
 	private boolean isRunning = false;
 	private SocketServer server;
-	private String clientName = "Anon";
+	private String clientName = "Client";
 	public ServerThread(Socket myClient, SocketServer server) throws IOException
 	{
 		this.client = myClient;

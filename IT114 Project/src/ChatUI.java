@@ -1,7 +1,6 @@
 import java.awt.BorderLayout; 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -12,16 +11,16 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.text.DefaultCaret;
 
+@SuppressWarnings("serial")
 public class ChatUI extends JFrame implements OnReceive
 {
 	static SocketClient client;
+	static JTextArea chatLog;
 	static JButton clickit;
 	static JTextArea history;
 	
@@ -51,34 +50,88 @@ public class ChatUI extends JFrame implements OnReceive
 		
 		ChatUI window = new ChatUI();
 		window.setLayout(new BorderLayout());
-		window.setPreferredSize(new Dimension(800,800));
+		window.setPreferredSize(new Dimension(600, 600));
+				
+		// create panel
+		JPanel chatRoom = new JPanel();
+		chatRoom.setPreferredSize(new Dimension(500, 500));
+		chatRoom.setLayout(new BorderLayout());
 		
+		// create text areas for messages and displaying users
+		JTextArea chatTextArea = new JTextArea();
+		JTextArea usersTextArea = new JTextArea();
+		chatLog = chatTextArea;
+		
+		// don't let the user edit either of these areas directly
+		chatTextArea.setEditable(false);
+		chatTextArea.setText("");
+		usersTextArea.setEditable(false);
+		usersTextArea.setText("");
+		
+		// create panel to hold multiple controls
+		JPanel chatArea = new JPanel();
+		chatArea.setPreferredSize(new Dimension(420, 500));
+		chatArea.setLayout(new BorderLayout());
+		
+		// add text to chat area
+		chatArea.add(chatTextArea, BorderLayout.CENTER);
+		chatArea.setBorder(BorderFactory.createLineBorder(Color.black));
+		
+		// create panel to display connected users
+		JPanel usersArea = new JPanel();
+		usersArea.setPreferredSize(new Dimension(168, 500));
+		usersArea.setLayout(new BorderLayout());
+		
+		// add user info to user area
+		usersArea.add(usersTextArea, BorderLayout.CENTER);
+		usersArea.setBorder(BorderFactory.createLineBorder(Color.green));
+		
+		// add chat area and users area to panel
+		chatRoom.add(chatArea, BorderLayout.EAST);
+		chatRoom.add(usersArea, BorderLayout.WEST);
+		
+		// create label to see who's online
+		JLabel uLabel = new JLabel();
+		uLabel.setHorizontalAlignment(JLabel.CENTER);
+		uLabel.setText("The Gang's All Here");
+		
+		// add label to users area
+		usersArea.add(uLabel, BorderLayout.NORTH);
+		
+		// create top panel
 		JPanel connectionDetails = new JPanel();
-		window.add(connectionDetails, BorderLayout.NORTH);
 		
-		JTextField username = new JTextField("Enter username");
-		username.setHorizontalAlignment(JTextField.CENTER);
-		username.setPreferredSize(new Dimension(160, 30));
+		// username text field
+		JTextField usernameField = new JTextField("Enter username");
+		usernameField.setHorizontalAlignment(JTextField.CENTER);
+		usernameField.setPreferredSize(new Dimension(160, 30));
 		
-		JTextField host = new JTextField();
-		host.setText("127.0.0.1");
+		// IP text field
+		JTextField defaultIP = new JTextField();
+		defaultIP.setHorizontalAlignment(JTextField.CENTER);
+		defaultIP.setPreferredSize(new Dimension(140, 30));
+		defaultIP.setText("127.0.0.1");
 		
-		JTextField port = new JTextField();
-		port.setText("3001");
+		// port number text field
+		JTextField defaultPort = new JTextField();
+		defaultPort.setHorizontalAlignment(JTextField.CENTER);
+		defaultPort.setPreferredSize(new Dimension(140, 30));
+		defaultPort.setText("3001");
 		
+		// connect button
 		JButton connect = new JButton();
+		connect.setPreferredSize(new Dimension (100, 30));
 		connect.setText("Connect");
-		
-		connectionDetails.add(username);
-		connectionDetails.add(host);
-		connectionDetails.add(port);
-		connectionDetails.add(connect);
-		
-		JButton click = new JButton("Send");
-		clickit = click;
-		click.setPreferredSize(new Dimension(100,30));
-		click.setText("Send");
-		click.setEnabled(true);
+		connect.addActionListener(new ActionListener()
+		{		
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					String username = usernameField.getText();
+					usersTextArea.append("\n" + username);
+				}
+			}
+		);
 		
 		connect.addActionListener(new ActionListener()
 		{
@@ -93,7 +146,7 @@ public class ChatUI extends JFrame implements OnReceive
 		    	
 		    	try
 		    	{
-		    		_port = Integer.parseInt(port.getText());
+		    		_port = Integer.parseInt(defaultPort.getText());
 		    	}
 		    	
 		    	catch(Exception num)
@@ -103,56 +156,57 @@ public class ChatUI extends JFrame implements OnReceive
 		    	
 		    	if(_port > -1)
 		    	{
-			    	client = SocketClient.connect(host.getText(), _port);
+			    	client = SocketClient.connect(defaultIP.getText(), _port);
 			    	client.registerMessageListener(window);
-			    	client.postConnectionData();
+			    	client.postConnectionData(usernameField.getText());
 			    	connect.setEnabled(false);
-			    	click.setEnabled(true);
 		    	}
 		    }
 		});
 		
-		//JPanel area = new JPanel();
-		//area.setLayout(new BorderLayout());
-		//window.add(area);
+		// add username, IP, port, and connect input 
+		connectionDetails.add(usernameField);
+		connectionDetails.add(defaultIP);
+		connectionDetails.add(defaultPort);
+		connectionDetails.add(connect);
 		
-		/*JPanel container = new JPanel();
-		container.setLayout(new BorderLayout());
+		// create panel to hold multiple controls
+		JPanel userInput = new JPanel();
 		
-		JTextArea ta = new JTextArea();
-		ta.setEditable(false);
-		history = ta;
-		history.setWrapStyleWord(true);
-		history.setAutoscrolls(true);
-		history.setLineWrap(true);
+		// setup text field
+		JTextField messageField = new JTextField();
+		messageField.setPreferredSize(new Dimension(450, 30));
 		
-		JScrollPane scroll = new JScrollPane(history);
-		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		// setup submit button
+		JButton send = new JButton();
+		send.setPreferredSize(new Dimension(100, 30));
+		send.setText("Send");
+		send.addActionListener(new ActionListener ()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				String message = messageField.getText();
+				//String username = usernameField.getText();
 		
-		DefaultCaret caret = (DefaultCaret)history.getCaret();
-		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		container.add(scroll, BorderLayout.CENTER);*/
+				if(message.length()> 0)
+				{
+					client.sendMessage(messageField.getText());
+					messageField.setText("");
+				}
+			}
+		});
 		
-		//JPanel spacer = new JPanel();
-		//JPanel panelSize = new JPanel();
-		//container.setPreferredSize(panelSize);
-		//spacer.setPreferredSize(panelSize);
-		JPanel usersArea = new JPanel();
-		usersArea.setPreferredSize(new Dimension(200, 500));
-		usersArea.setLayout(new BorderLayout());
+		// add text field and button to panel
+		userInput.add(messageField);
+		userInput.add(send);
 		
-		JPanel chatArea = new JPanel();
-		chatArea.setPreferredSize(new Dimension(200, 500));
-		chatArea.setLayout(new BorderLayout());
+		// add panels to chatRoom panel
+		chatRoom.add(userInput, BorderLayout.SOUTH);
+		chatRoom.add(connectionDetails, BorderLayout.NORTH);
 		
-		window.add(usersArea, BorderLayout.EAST);
-		window.add(chatArea, BorderLayout.WEST);
-		
-		/*area.add(click, BorderLayout.SOUTH);
-		area.add(chatArea, BorderLayout.WEST);
-		area.add(usersArea, BorderLayout.EAST);*/
-		//area.add(spacer, BorderLayout.EAST);
+		// add chatRoom panel to frame
+		window.add(chatRoom, BorderLayout.CENTER);
 		
 		window.pack();
 		window.setVisible(true);
@@ -160,10 +214,8 @@ public class ChatUI extends JFrame implements OnReceive
 
 	public void onReceivedMessage(String msg)
 	{
-		if(history != null)
-		{
-			history.append(msg);
-			history.append(System.lineSeparator());
-		}
+		System.out.println(msg);
+		chatLog.append(msg);
+		chatLog.append(System.lineSeparator());
 	}
 }
