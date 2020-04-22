@@ -13,14 +13,37 @@ public class SocketServer
 	int port = 3002;
 	public static boolean isRunning = true;
 	private List<ServerThread> clients = new ArrayList<ServerThread>();
+
 	Queue<String> messages = new LinkedList<String>();
+	public GameState state = new GameState();
+	public static long ClientID = 0;
+	public synchronized long getNextId()
+	{
+		ClientID++;
+		return ClientID;
+	}
+	
+	public synchronized void toggleButton(Payload payload)
+	{
+		if(state.isButtonOn && !payload.IsOn())
+		{
+			state.isButtonOn = false;
+			broadcast(payload);
+		}
+		
+		else if (!state.isButtonOn && payload.IsOn())
+		{
+			state.isButtonOn = true;
+			broadcast(payload);
+		}
+	}
 	
 	private void start(int port)
 	{
 		this.port = port;
 		startQueueReader();
-		System.out.println("Waiting for client...");
 		
+		System.out.println("Waiting for client");
 		try (ServerSocket serverSocket = new ServerSocket(port);)
 		{
 			while(SocketServer.isRunning)
@@ -31,8 +54,9 @@ public class SocketServer
 					System.out.println("Client connecting...");
 					ServerThread thread = new ServerThread(client, this);
 					thread.start();
+					thread.setClientId(getNextId());
 					clients.add(thread);
-					System.out.println("Client added to the pool of clients!");
+					System.out.println("Client added to clients pool");
 				}
 				
 				catch(IOException e)
@@ -40,6 +64,7 @@ public class SocketServer
 					e.printStackTrace();
 				}
 			}
+			
 		}
 		
 		catch (IOException e)
@@ -54,7 +79,7 @@ public class SocketServer
 				isRunning = false;
 				Thread.sleep(50);
 				System.out.println("closing server socket");
-			} 
+			}
 			
 			catch (Exception e)
 			{
@@ -72,13 +97,11 @@ public class SocketServer
 			public void run()
 			{
 				String message = "";
-				
 				try(FileWriter write = new FileWriter("chathistory.txt", true))
 				{
 					while(isRunning)
 					{
 						message = messages.poll();
-						
 						if(message != null)
 						{
 							message = messages.poll();
@@ -120,7 +143,9 @@ public class SocketServer
 	{
 		String msg = payload.getMessage();
 		payload.setMessage(
+				//prepending client name to front of message
 				(name!=null?name:"[Name Error]") 
+				//including original message if not null (with a prepended colon)
 				+ (msg != null?": "+ msg:"")
 		);
 		
@@ -129,15 +154,13 @@ public class SocketServer
 	
 	public synchronized void broadcast(Payload payload)
 	{
-		System.out.println("Sending message to " + clients.size() + " clients.");
-		storeInFile(payload.getMessage());
-		Iterator<ServerThread> iter = clients.iterator();
+		System.out.println("Sending message to " + clients.size() + " clients");
 		
+		Iterator<ServerThread> iter = clients.iterator();
 		while(iter.hasNext())
 		{
 			ServerThread client = iter.next();
 			boolean messageSent = client.send(payload);
-			
 			if(!messageSent)
 			{
 				iter.remove();
@@ -145,7 +168,7 @@ public class SocketServer
 			}
 		}
 	}
-
+	
 	public synchronized void broadcast(Payload payload, long id)
 	{
 		int from = getClientIndexByThreadId(id);
@@ -158,7 +181,7 @@ public class SocketServer
 		broadcast(payload);
 		
 	}
-
+	
 	public synchronized void broadcast(String message, long id)
 	{
 		Payload payload = new Payload();
@@ -167,19 +190,13 @@ public class SocketServer
 		broadcast(payload, id);
 	}
 	
-	void storeInFile(String message)
-	{
-		messages.add(message);
-	}
-
 	public static void main(String[] args)
 	{
-		int port = 3002;
 		
+		int port = 3001;
 		if(args.length >= 1)
 		{
 			String arg = args[0];
-			
 			try
 			{
 				port = Integer.parseInt(arg);
@@ -196,4 +213,9 @@ public class SocketServer
 		server.start(port);
 		System.out.println("Server Stopped");
 	}
+}
+
+class GameState
+{
+	boolean isButtonOn = false;
 }

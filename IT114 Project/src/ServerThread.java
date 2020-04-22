@@ -20,8 +20,32 @@ public class ServerThread extends Thread
 		in = new ObjectInputStream(client.getInputStream());
 	}
 	
+	public void setClientId(long id)
+	{
+		clientName += "_" + id;
+	}
+	
+	void syncStateToMyClient()
+	{
+		System.out.println(this.clientName + " broadcast state");
+		Payload payload = new Payload();
+		payload.setPayloadType(PayloadType.STATE_SYNC);
+		payload.IsOn(server.state.isButtonOn);
+		
+		try
+		{
+			out.writeObject(payload);
+		}
+		
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	void broadcastConnected()
 	{
+		System.out.println(this.clientName + " Broadcast connected");
 		Payload payload = new Payload();
 		payload.setPayloadType(PayloadType.CONNECT);
 		server.broadcast(payload, this.clientName);
@@ -50,8 +74,10 @@ public class ServerThread extends Thread
 			return false;
 		}
 	}
+	
 	@Deprecated
-	public boolean send(String message) {
+	public boolean send(String message)
+	{
 		Payload payload = new Payload();
 		payload.setPayloadType(PayloadType.MESSAGE);
 		payload.setMessage(message);
@@ -93,6 +119,7 @@ public class ServerThread extends Thread
 		
 		switch(payload.getPayloadType())
 		{
+		
 		case CONNECT:
 			String m = payload.getMessage();
 			
@@ -103,12 +130,14 @@ public class ServerThread extends Thread
 			}
 			
 			broadcastConnected();
+			syncStateToMyClient();
+			
 			break;
 		case DISCONNECT:
 			System.out.println("Received disconnect");
 			break;
 		case MESSAGE:
-			payload.setMessage(WordBlackList.filter(payload.getMessage()));
+			//payload.setMessage(WordBlackList.filter(payload.getMessage()));
 			server.broadcast(payload, this.clientName);
 			break;
 		default:

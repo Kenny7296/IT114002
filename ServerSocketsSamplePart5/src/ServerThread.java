@@ -3,18 +3,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class ServerThreadPart5 extends Thread
-{
+public class ServerThread extends Thread{
 	private Socket client;
 	private ObjectInputStream in;//from client
 	private ObjectOutputStream out;//to client
 	private boolean isRunning = false;
-	private SampleSocketServerPart5 server;//ref to our server so we can call methods on it
+	private SocketServer server;//ref to our server so we can call methods on it
 	//more easily
 	private String clientName = "Anon";
-	
-	public ServerThreadPart5(Socket myClient, String clientName, SampleSocketServerPart5 server) throws IOException
-	{
+	public ServerThread(Socket myClient, SocketServer server) throws IOException {
 		this.client = myClient;
 		this.server = server;
 		isRunning = true;
@@ -27,40 +24,47 @@ public class ServerThreadPart5 extends Thread
 		//so we won't see that we connected. Jump down to run()
 		//broadcastConnected();
 	}
-	
-	void broadcastConnected()
-	{
-		PayloadPart5 payload = new PayloadPart5();
-		payload.setPayloadType(PayloadTypePart5.CONNECT);
+	public void setClientId(long id) {
+		clientName += "_" + id;
+	}
+	void syncStateToMyClient() {
+		System.out.println(this.clientName + " broadcast state");
+		Payload payload = new Payload();
+		payload.setPayloadType(PayloadType.STATE_SYNC);
+		payload.IsOn(server.state.isButtonOn);
+		try {
+			out.writeObject(payload);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	void broadcastConnected() {
+		System.out.println(this.clientName + " broadcast connected");
+		Payload payload = new Payload();
+		payload.setPayloadType(PayloadType.CONNECT);
 		//note we don't need to specify message as it'll be handle by the server
 		//for this case
 		//we can send our name instead of id
 		//server.broadcast(payload, this.getId());
 		server.broadcast(payload, this.clientName);
 	}
-	
-	void broadcastDisconnected()
-	{
+	void broadcastDisconnected() {
 		//let everyone know we're here
-		PayloadPart5 payload = new PayloadPart5();
-		payload.setPayloadType(PayloadTypePart5.DISCONNECT);
+		Payload payload = new Payload();
+		payload.setPayloadType(PayloadType.DISCONNECT);
 		//note we don't need to specify message as it'll be handle by the server
 		//for this case
 		//we can send our name instead of id
 		//server.broadcast(payload, this.getId());
 		server.broadcast(payload, this.clientName);
 	}
-	
-	public boolean send(PayloadPart5 payload)
-	{
-		try
-		{
+	public boolean send(Payload payload) {
+		try {
 			out.writeObject(payload);
 			return true;
 		}
-		
-		catch(IOException e)
-		{
+		catch(IOException e) {
 			System.out.println("Error sending message to client");
 			e.printStackTrace();
 			cleanup();
@@ -68,42 +72,33 @@ public class ServerThreadPart5 extends Thread
 		}
 	}
 	@Deprecated
-	public boolean send(String message)
-	{
+	public boolean send(String message) {
 		//added a boolean so we can see if the send was successful
-		PayloadPart5 payload = new PayloadPart5();
-		payload.setPayloadType(PayloadTypePart5.MESSAGE);
+		Payload payload = new Payload();
+		payload.setPayloadType(PayloadType.MESSAGE);
 		payload.setMessage(message);
 		return send(payload);
 	}
 	@Override
-	public void run()
-	{
-		try
-		{
+	public void run() {
+		try {
 			//here we can let people know. We should be on the list
 			//so we'll see that we connected
 			//if we're using client name then we can comment this part out and use
 			//it only when we get a connect payload from our client
 			//broadcastConnected();
-			PayloadPart5 fromClient;
-			
+			Payload fromClient;
 			while(isRunning 
 					&& !client.isClosed()
-					&& (fromClient = (PayloadPart5)in.readObject()) != null)
-			{//open while loop
+					&& (fromClient = (Payload)in.readObject()) != null) {//open while loop
 				processPayload(fromClient);
 			}//close while loop
 		}
-		
-		catch(Exception e)
-		{
+		catch(Exception e) {
 			e.printStackTrace();
 			System.out.println("Terminating Client");
 		}
-		
-		finally
-		{
+		finally {
 			//we're going to try to send our disconnect message, but it could fail
 			broadcastDisconnected();
 			//TODO
@@ -111,97 +106,53 @@ public class ServerThreadPart5 extends Thread
 			cleanup();
 		}
 	}
-	
-	private void processPayload(PayloadPart5 payload)
-	{
+	private void processPayload(Payload payload) {
 		System.out.println("Received from client: " + payload);
-		
-		switch(payload.getPayloadType())
-		{
+		switch(payload.getPayloadType()) {
 		case CONNECT:
 			String m = payload.getMessage();
-			
-			if(m != null)
-			{
+			if(m != null) {
 				m = WordBlackList.filter(m);
 				this.clientName = m;
 			}
-			
 			broadcastConnected();
+			syncStateToMyClient();
+			
 			break;
 		case DISCONNECT:
 			System.out.println("Received disconnect");
 			break;
 		case MESSAGE:
 			//we can just pass the whole payload onward
-			payload.setMessage(WordBlackList.filter(payload.getMessage()));
+			//payload.setMessage(WordBlackList.filter(payload.getMessage()));
 			server.broadcast(payload, this.clientName);
+			break;
+		case SWITCH:
+			//whatever we get from the client, just tell everyone else, ok?
+			payload.setMessage(this.clientName);
+			server.toggleButton(payload);
 			break;
 		default:
 			System.out.println("Unhandled payload type from client " + payload.getPayloadType());
 			break;
 		}
 	}
-	
-	private void cleanup()
-	{
-		if(in != null)
-		{
-			try
-			{
-				in.close();
-			}
-			
-			catch(IOException e)
-			{
-				System.out.println("Input already closed");
-			}
+	private void cleanup() {
+		if(in != null) {
+			try {in.close();}
+			catch(IOException e) {System.out.println("Input already closed");}
 		}
-		
-		if(out != null)
-		{
-			try
-			{
-				out.close();
-			}
-			
-			catch(IOException e)
-			{
-				System.out.println("Client already closed");
-			}
+		if(out != null) {
+			try {out.close();}
+			catch(IOException e) {System.out.println("Client already closed");}
 		}
-		
-		if(client != null && !client.isClosed())
-		{
-			try
-			{
-				client.shutdownInput();
-			}
-			
-			catch(IOException e)
-			{
-				System.out.println("Socket/Input already closed");
-			}
-			
-			try
-			{
-				client.shutdownOutput();
-			}
-			
-			catch(IOException e)
-			{
-				System.out.println("Socket/Output already closed");
-			}
-			
-			try
-			{
-				client.close();
-			}
-			
-			catch(IOException e)
-			{
-				System.out.println("Client already closed");
-			}
+		if(client != null && !client.isClosed()) {
+			try {client.shutdownInput();}
+			catch(IOException e) {System.out.println("Socket/Input already closed");}
+			try {client.shutdownOutput();}
+			catch(IOException e) {System.out.println("Socket/Output already closed");}
+			try {client.close();}
+			catch(IOException e) {System.out.println("Client already closed");}
 		}
 	}
 }
