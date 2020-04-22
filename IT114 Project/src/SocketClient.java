@@ -3,13 +3,65 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Scanner;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class SocketClient
 {
-	Socket server;
+	private Socket server;
+	private OnReceive switchListener;
+	private OnReceive messageListener;
 	
-	public void connect(String address, int port)
+	public void registerSwitchListener(OnReceive listener)
+	{
+		this.switchListener = listener;
+	}
+	
+	public void registerMessageListener(OnReceive listener)
+	{
+		this.messageListener = listener;
+	}
+	
+	private Queue<Payload> toServer = new LinkedList<Payload>();
+	private Queue<Payload> fromServer = new LinkedList<Payload>();
+	
+	public static SocketClient connect(String address, int port)
+	{
+		SocketClient client = new SocketClient();
+		client._connect(address, port);
+		Thread clientThread =  new Thread()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					client.start();
+				}
+				
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		};
+		
+		clientThread.start();
+		
+		try
+		{
+			Thread.sleep(50);
+		}
+		
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		
+		return client;
+	}
+	
+	private void _connect(String address, int port)
 	{
 		try
 		{
@@ -36,30 +88,9 @@ public class SocketClient
 		}
 		
 		System.out.println("Client Started");
-		try(Scanner si = new Scanner(System.in);
-				ObjectOutputStream out = new ObjectOutputStream(server.getOutputStream());
+		try(	ObjectOutputStream out = new ObjectOutputStream(server.getOutputStream());
 				ObjectInputStream in = new ObjectInputStream(server.getInputStream());)
 		{
-			String name = "";
-			
-			do
-			{
-				System.out.println("Please enter a username to continue.");
-				name = si.nextLine();
-				
-				if(name == null || name.trim().length() == 0)
-				{
-					name = "";
-				}
-			}
-			
-			while(!server.isClosed() && name != null && name.length() == 0);
-			
-			Payload p = new Payload();
-			p.setPayloadType(PayloadType.CONNECT);
-			p.setMessage(name);
-			out.writeObject(p);
-			
 			Thread inputThread = new Thread()
 			{
 				@Override
@@ -69,25 +100,24 @@ public class SocketClient
 					{
 						while(!server.isClosed())
 						{
-							System.out.println("Waiting for input...");
-							String line = si.nextLine();
+							Payload p = toServer.poll();
 							
-							if(!"quit".equalsIgnoreCase(line) && line != null)
+							if(p != null)
 							{
-								Payload p = new Payload();
-								p.setPayloadType(PayloadType.MESSAGE);
-								p.setMessage(line);
 								out.writeObject(p);
 							}
 							
 							else
 							{
-								System.out.println("Stopping input thread");
-								Payload p = new Payload();
-								p.setPayloadType(PayloadType.DISCONNECT);
-								p.setMessage("bye");
-								out.writeObject(p);
-								break;
+								try
+								{
+									Thread.sleep(8);
+								}
+								
+								catch (Exception e)
+								{
+									e.printStackTrace();
+								}
 							}
 						}
 					}
@@ -113,11 +143,13 @@ public class SocketClient
 				{
 					try
 					{
-						Payload fromServer;
+						Payload p;
 						
-						while(!server.isClosed() && (fromServer = (Payload)in.readObject()) != null)
+						while(!server.isClosed() && (p = (Payload)in.readObject()) != null)
 						{
-							processPayload(fromServer);
+							//System.out.println(fromServer);
+							//processPayload(fromServer);
+							fromServer.add(p);
 						}
 						
 						System.out.println("Stopping server listen thread");
@@ -145,7 +177,39 @@ public class SocketClient
 			};
 			
 			fromServerThread.start();
-
+			
+			Thread payloadProcessor = new Thread()
+			{
+				@Override
+				public void run()
+				{
+					while(!server.isClosed())
+					{
+						Payload p = fromServer.poll();
+						
+						if(p != null)
+						{
+							processPayload(p);
+						}
+						
+						else
+						{
+							try
+							{
+								Thread.sleep(8);
+							}
+							
+							catch (InterruptedException e)
+							{
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+			};
+			
+			payloadProcessor.start();
+			
 			while(!server.isClosed())
 			{
 				Thread.sleep(50);
@@ -166,26 +230,73 @@ public class SocketClient
 		}
 	}
 	
+	public void postConnectionData()
+	{
+		Payload payload = new Payload();
+		payload.setPayloadType(PayloadType.CONNECT);
+		toServer.add(payload);
+	}
+	
+	public void doClick(boolean isOn)
+	{
+		Payload payload = new Payload();
+		payload.setPayloadType(PayloadType.SWITCH);
+		payload.IsOn(isOn);
+		toServer.add(payload);
+	}
+	
+	public void sendMessage(String message)
+	{
+		Payload payload = new Payload();
+		payload.setPayloadType(PayloadType.MESSAGE);
+		payload.setMessage(message);
+		toServer.add(payload);
+	}
+	
 	private void processPayload(Payload payload)
 	{
 		System.out.println(payload);
+		String msg = "";
 		switch(payload.getPayloadType())
 		{
 		
 		case CONNECT:
-			System.out.println(
-					String.format("Client \"%s\" has connected", payload.getMessage())
-			);
+			msg = String.format("Client \"%s\" has connected", payload.getMessage());
+			System.out.println(msg);
+			if(messageListener != null) {
+				messageListener.onReceivedMessage(msg);
+			}
 			break;
 		case DISCONNECT:
-			System.out.println(
-					String.format("Client \"%s\" has disconnected", payload.getMessage())
-			);
+			msg = String.format("Client \"%s\" has disconnected", payload.getMessage());
+			System.out.println(msg);
+			if(messageListener != null)
+			{
+				messageListener.onReceivedMessage(msg);
+			}
 			break;
 		case MESSAGE:
 			System.out.println(
 					String.format("%s", payload.getMessage())
 			);
+			break;
+		case STATE_SYNC:
+			System.out.println("Sync");
+			//break; //this state will drop down to next state
+		case SWITCH:
+			System.out.println("switch");
+			if (switchListener != null)
+			{
+				switchListener.onReceivedSwitch(payload.IsOn());
+			}
+			if(messageListener != null)
+			{
+				messageListener.onReceivedMessage(
+						String.format("%s turned the button %s", 
+								payload.getMessage(),
+								payload.IsOn()?"On":"Off")
+				);
+			}
 			break;
 		default:
 			System.out.println("Unhandled payload type: " + payload.getPayloadType().toString());
@@ -213,16 +324,24 @@ public class SocketClient
 	public static void main(String[] args)
 	{
 		SocketClient client = new SocketClient();
-		client.connect("127.0.0.1", 3002);
+		SocketClient.connect("127.0.0.1", 3001);
 		
 		try
 		{
+			//if start is private, it's valid here since this main is part of the class
 			client.start();
 		}
 		
-		catch (IOException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
 	}
+
+}
+
+interface OnReceive
+{
+	void onReceivedSwitch(boolean isOn);
+	void onReceivedMessage(String msg);
 }

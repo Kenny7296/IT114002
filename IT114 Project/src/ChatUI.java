@@ -1,22 +1,42 @@
-import java.awt.BorderLayout;
+import java.awt.BorderLayout; 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.Socket;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.text.DefaultCaret;
 
-public class ChatUI
+public class ChatUI extends JFrame implements OnReceive
 {
-	//public SocketClient client = new SocketClient();
-	//Socket client;
+	static SocketClient client;
+	static JButton toggle;
+	static JButton clickit;
+	static JTextArea history;
+	
+	public ChatUI()
+	{
+		super("Callable SocketClient");
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter()
+		{
+			@Override
+			public void windowClosing(WindowEvent e)
+			{
+				super.windowClosing(e);
+			}
+		});
+	}
 	
 	public static void main(String[] args)
 	{

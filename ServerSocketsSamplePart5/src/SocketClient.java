@@ -6,7 +6,6 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-
 public class SocketClient {
 	private Socket server;
 	private OnReceive switchListener;
@@ -227,7 +226,7 @@ public class SocketClient {
 	}
 	public static void main(String[] args) {
 		SocketClient client = new SocketClient();
-		client.connect("127.0.0.1", 3001);
+		SocketClient.connect("127.0.0.1", 3001);
 		try {
 			//if start is private, it's valid here since this main is part of the class
 			client.start();

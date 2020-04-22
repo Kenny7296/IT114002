@@ -139,6 +139,9 @@ public class ServerThread extends Thread
 		case MESSAGE:
 			//payload.setMessage(WordBlackList.filter(payload.getMessage()));
 			server.broadcast(payload, this.clientName);
+		case SWITCH:
+			payload.setMessage(this.clientName);
+			server.toggleButton(payload);
 			break;
 		default:
 			System.out.println("Unhandled payload type from client " + payload.getPayloadType());
