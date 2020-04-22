@@ -78,7 +78,8 @@ public class UISample extends JFrame implements OnReceive{
 		JPanel area = new JPanel();
 		area.setLayout(new BorderLayout());
 		window.add(area, BorderLayout.CENTER);
-		JButton toggle = new JButton(){
+		JButton toggle = new JButton()
+		{
 			//TODO showing how we can override the painting of a component
 			//for "custom" ui
 			@Override
@@ -183,14 +184,18 @@ public class UISample extends JFrame implements OnReceive{
 		window.setVisible(true);
 	}
 	@Override
-	public void onReceivedSwitch(boolean isOn) {
-		if(UISample.toggle != null) {
+	public void onReceivedSwitch(boolean isOn)
+	{
+		if(UISample.toggle != null)
+		{
 			UISample.toggleButton(isOn);
 		}
 	}
 	@Override
-	public void onReceivedMessage(String msg) {
-		if(history != null) {
+	public void onReceivedMessage(String msg)
+	{
+		if(history != null)
+		{
 			history.append(msg);
 			history.append(System.lineSeparator());
 		}
