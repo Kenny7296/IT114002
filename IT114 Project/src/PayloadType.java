@@ -4,5 +4,6 @@ public enum PayloadType
 	DISCONNECT,
 	MESSAGE,
 	SWITCH,
-	STATE_SYNC
+	STATE_SYNC,
+	DIRECT
 }

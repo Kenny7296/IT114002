@@ -23,21 +23,6 @@ public class SocketServer
 		return ClientID;
 	}
 	
-	public synchronized void toggleButton(Payload payload)
-	{
-		if(state.isButtonOn && !payload.IsOn())
-		{
-			state.isButtonOn = false;
-			broadcast(payload);
-		}
-		
-		else if (!state.isButtonOn && payload.IsOn())
-		{
-			state.isButtonOn = true;
-			broadcast(payload);
-		}
-	}
-	
 	private void start(int port)
 	{
 		this.port = port;
@@ -184,7 +169,7 @@ public class SocketServer
 	
 	public synchronized void broadcast(String message, long id)
 	{
-		Payload payload = new Payload();
+		Payload payload = new Payload(null, message);
 		payload.setPayloadType(PayloadType.MESSAGE);
 		payload.setMessage(message);
 		broadcast(payload, id);

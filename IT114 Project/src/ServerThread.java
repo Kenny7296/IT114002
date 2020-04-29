@@ -28,7 +28,7 @@ public class ServerThread extends Thread
 	void syncStateToMyClient()
 	{
 		System.out.println(this.clientName + " broadcast state");
-		Payload payload = new Payload();
+		Payload payload = new Payload(null, clientName);
 		payload.setPayloadType(PayloadType.STATE_SYNC);
 		payload.IsOn(server.state.isButtonOn);
 		
@@ -46,14 +46,14 @@ public class ServerThread extends Thread
 	void broadcastConnected()
 	{
 		System.out.println(this.clientName + " Broadcast connected");
-		Payload payload = new Payload();
+		Payload payload = new Payload(null, clientName);
 		payload.setPayloadType(PayloadType.CONNECT);
 		server.broadcast(payload, this.clientName);
 	}
 	
 	void broadcastDisconnected()
 	{
-		Payload payload = new Payload();
+		Payload payload = new Payload(null, clientName);
 		payload.setPayloadType(PayloadType.DISCONNECT);
 		server.broadcast(payload, this.clientName);
 	}
@@ -78,7 +78,7 @@ public class ServerThread extends Thread
 	@Deprecated
 	public boolean send(String message)
 	{
-		Payload payload = new Payload();
+		Payload payload = new Payload(null, message);
 		payload.setPayloadType(PayloadType.MESSAGE);
 		payload.setMessage(message);
 		return send(payload);

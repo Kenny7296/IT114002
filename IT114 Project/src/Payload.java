@@ -4,6 +4,7 @@ public class Payload implements Serializable
 {
 	private static final long serialVersionUID = -6625037986217386003L;
 	
+	/*
 	private boolean isOn = false;
 	
 	public void IsOn(boolean isOn)
@@ -15,6 +16,7 @@ public class Payload implements Serializable
 	{
 		return this.isOn;
 	}
+	*/
 
 	private String message;
 
@@ -40,15 +42,18 @@ public class Payload implements Serializable
 		return this.payloadType;
 	}
 	
-	private int number;
-	public void setNumber(int n)
+	public Payload(PayloadType type, String message)
 	{
-		this.number = n;
+		this(type, message, null);
 	}
 	
-	public int getNumber()
+	public String target;
+	
+	public Payload(PayloadType type, String message, String target)
 	{
-		return this.number;
+			this.payloadType = type;
+			this.message = message;
+			this.target = target;
 	}
 	
 	@Override

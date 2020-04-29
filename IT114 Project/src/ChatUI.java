@@ -21,7 +21,6 @@ public class ChatUI extends JFrame implements OnReceive
 {
 	static SocketClient client;
 	static JTextArea chatLog;
-	static JButton clickit;
 	static JTextArea history;
 	
 	public ChatUI()
@@ -140,9 +139,6 @@ public class ChatUI extends JFrame implements OnReceive
 		    {
 		    	client = new SocketClient();
 		    	int _port = -1;
-		    	
-		    	//String username = username.getText();
-				//usersTextArea.append("\n" + username);
 		    	
 		    	try
 		    	{
