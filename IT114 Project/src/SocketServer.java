@@ -15,7 +15,6 @@ public class SocketServer
 	private List<ServerThread> clients = new ArrayList<ServerThread>();
 
 	Queue<String> messages = new LinkedList<String>();
-	public GameState state = new GameState();
 	public static long ClientID = 0;
 	public synchronized long getNextId()
 	{
@@ -128,9 +127,7 @@ public class SocketServer
 	{
 		String msg = payload.getMessage();
 		payload.setMessage(
-				//prepending client name to front of message
 				(name!=null?name:"[Name Error]") 
-				//including original message if not null (with a prepended colon)
 				+ (msg != null?": "+ msg:"")
 		);
 		
@@ -198,9 +195,4 @@ public class SocketServer
 		server.start(port);
 		System.out.println("Server Stopped!");
 	}
-}
-
-class GameState
-{
-	boolean isButtonOn = false;
 }
