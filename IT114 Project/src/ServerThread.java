@@ -25,23 +25,7 @@ public class ServerThread extends Thread
 		clientName += "_" + id;
 	}
 	
-	void syncStateToMyClient()
-	{
-		System.out.println(this.clientName + " broadcast state");
-		Payload payload = new Payload(null, clientName);
-		payload.setPayloadType(PayloadType.STATE_SYNC);
-		payload.IsOn(server.state.isButtonOn);
-		
-		try
-		{
-			out.writeObject(payload);
-		}
-		
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
+	
 	
 	void broadcastConnected()
 	{
@@ -130,18 +114,17 @@ public class ServerThread extends Thread
 			}
 			
 			broadcastConnected();
-			syncStateToMyClient();
 			
 			break;
 		case DISCONNECT:
 			System.out.println("Received disconnect");
 			break;
 		case MESSAGE:
-			//payload.setMessage(WordBlackList.filter(payload.getMessage()));
+			payload.setMessage(WordBlackList.filter(payload.getMessage()));
 			server.broadcast(payload, this.clientName);
-		case SWITCH:
-			payload.setMessage(this.clientName);
-			server.toggleButton(payload);
+		//case SWITCH:
+			//payload.setMessage(this.clientName);
+			//server.toggleButton(payload);
 			break;
 		default:
 			System.out.println("Unhandled payload type from client " + payload.getPayloadType());
