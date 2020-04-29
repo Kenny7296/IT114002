@@ -25,8 +25,6 @@ public class ServerThread extends Thread
 		clientName += "_" + id;
 	}
 	
-	
-	
 	void broadcastConnected()
 	{
 		System.out.println(this.clientName + " Broadcast connected");
@@ -97,24 +95,25 @@ public class ServerThread extends Thread
 		}
 	}
 	
+	public String getClientName()
+	{
+		return this.clientName;
+	}
+	
 	private void processPayload(Payload payload)
 	{
 		System.out.println("Received from client: " + payload);
 		
 		switch(payload.getPayloadType())
 		{
-		
 		case CONNECT:
 			String m = payload.getMessage();
-			
 			if(m != null)
 			{
 				m = WordBlackList.filter(m);
 				this.clientName = m;
 			}
-			
 			broadcastConnected();
-			
 			break;
 		case DISCONNECT:
 			System.out.println("Received disconnect");
@@ -122,9 +121,8 @@ public class ServerThread extends Thread
 		case MESSAGE:
 			payload.setMessage(WordBlackList.filter(payload.getMessage()));
 			server.broadcast(payload, this.clientName);
-		//case SWITCH:
-			//payload.setMessage(this.clientName);
-			//server.toggleButton(payload);
+		case DIRECT:
+			server.sendtoClientbyName(payload.getTarget(), payload);
 			break;
 		default:
 			System.out.println("Unhandled payload type from client " + payload.getPayloadType());

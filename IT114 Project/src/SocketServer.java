@@ -172,6 +172,19 @@ public class SocketServer
 		broadcast(payload, id);
 	}
 	
+	public synchronized void sendtoClientbyName(String name, Payload payload)
+	{
+		for(int i = 0; i < clients.size(); i++)
+		{
+			if(clients.get(i).getClientName().equals(name))
+			{
+				payload.setPayloadType(PayloadType.MESSAGE);
+				clients.get(i).send(payload);
+				break;
+			}
+		}
+	}
+	
 	public static void main(String[] args)
 	{
 		

@@ -75,46 +75,6 @@ public class SocketClient
 		}
 	}
 	
-	public void sendChoice(String message)
-	{
-		 if (message.indexOf("@") > -1)
-		 {
-			 sendpm(message);
-			 return;
-		 }
-		 
-		 try
-		 {
-			out.writeObject(new Payload(PayloadType.MESSAGE, message));
-		}
-		
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	public void sendpm(String message)
-	{
-		try
-		{
-			if (message.indexOf("@") > -1)
-			{
-				String[] m = message.split("@");
-				String start = m[1];
-				String[] part = start.split(" ");
-				String clientName = part[0];
-				out.writeObject(new Payload(PayloadType.DIRECT, message, clientName));
-			}
-			
-		}
-		
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
 	public void start() throws IOException
 	{
 		if(server == null)
@@ -279,13 +239,58 @@ public class SocketClient
 		toServer.add(payload);
 	}
 	
+	public void sendChoice(String message)
+	{
+		if (message.indexOf("@") > -1)
+		{
+			sendpm(message);
+			return;
+		}
+		 
+		try
+		{
+			Payload payload = new Payload(null, message);
+			payload.setPayloadType(PayloadType.MESSAGE);
+			payload.setMessage(message);
+			toServer.add(payload);
+		}
+		
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void sendpm(String message)
+	{
+		//try
+		//{
+			if (message.indexOf("@") > -1)
+			{
+				String[] m = message.split("@");
+				String start = m[1];
+				String[] part = start.split(" ");
+				String clientName = part[0];
+				Payload payload = new Payload(null, message);
+				payload.setPayloadType(PayloadType.DIRECT);
+				payload.setMessage(message);
+				toServer.add(payload);
+			}
+			
+		}
+		
+		//catch (IOException e)
+		//{
+		//	e.printStackTrace();
+		//}
+	//}
+	
 	private void processPayload(Payload payload)
 	{
 		System.out.println(payload);
 		String msg = "";
 		switch(payload.getPayloadType())
 		{
-		
 		case CONNECT:
 			msg = String.format("Client \"%s\" has connected", payload.getMessage());
 			System.out.println(msg);

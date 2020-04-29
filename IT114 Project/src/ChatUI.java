@@ -1,4 +1,4 @@
-import java.awt.BorderLayout; 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -93,7 +93,7 @@ public class ChatUI extends JFrame implements OnReceive
 		JLabel uLabel = new JLabel();
 		uLabel.setHorizontalAlignment(JLabel.CENTER);
 		uLabel.setText("The Gang's All Here");
-		
+
 		// add label to users area
 		usersArea.add(uLabel, BorderLayout.NORTH);
 		
@@ -183,8 +183,7 @@ public class ChatUI extends JFrame implements OnReceive
 			public void actionPerformed(ActionEvent e)
 			{
 				String message = messageField.getText();
-				//String username = usernameField.getText();
-		
+				
 				if(message.length()> 0)
 				{
 					client.sendMessage(messageField.getText());
