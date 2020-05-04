@@ -6,7 +6,6 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-
 public class SocketClient
 {
 	private Socket server;
