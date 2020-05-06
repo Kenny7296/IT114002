@@ -122,7 +122,7 @@ public class ServerThread extends Thread
 			payload.setMessage(WordBlackList.filter(payload.getMessage()));
 			server.broadcast(payload, this.clientName);
 		case DIRECT:
-			server.sendtoClientbyName(payload.getTarget(), payload);
+			server.sendToClientByName(payload.getTarget(), payload);
 			break;
 		default:
 			System.out.println("Unhandled payload type from client " + payload.getPayloadType());

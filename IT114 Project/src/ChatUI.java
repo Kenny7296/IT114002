@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -22,6 +24,10 @@ public class ChatUI extends JFrame implements OnReceive
 	static SocketClient client;
 	static JTextArea chatLog;
 	static JTextArea history;
+	List<String> users = new ArrayList<String>();
+	// create text area for displaying/ users
+	static JTextArea usersTextArea = new JTextArea();
+	
 	
 	public ChatUI()
 	{
@@ -56,9 +62,8 @@ public class ChatUI extends JFrame implements OnReceive
 		chatRoom.setPreferredSize(new Dimension(500, 500));
 		chatRoom.setLayout(new BorderLayout());
 		
-		// create text areas for messages and displaying users
+		// create text area for messages
 		JTextArea chatTextArea = new JTextArea();
-		JTextArea usersTextArea = new JTextArea();
 		chatLog = chatTextArea;
 		
 		// don't let the user edit either of these areas directly
@@ -153,7 +158,7 @@ public class ChatUI extends JFrame implements OnReceive
 		    	if(_port > -1)
 		    	{
 			    	client = SocketClient.connect(defaultIP.getText(), _port);
-			    	client.registerMessageListener(window);
+			    	client.registerListener(window);
 			    	client.postConnectionData(usernameField.getText());
 			    	connect.setEnabled(false);
 		    	}
@@ -212,5 +217,26 @@ public class ChatUI extends JFrame implements OnReceive
 		System.out.println(msg);
 		chatLog.append(msg);
 		chatLog.append(System.lineSeparator());
+	}
+
+	@Override
+	public void onReceiveConnection(String name, boolean isConnected)
+	{
+		if (isConnected)
+		{
+			users.add(name);
+		}
+		
+		else
+		{
+			users.remove(name);
+		}
+		
+		usersTextArea.setText("");
+		for(int i = 0; i < users.size(); i++)
+		{
+			usersTextArea.append(users.get(i));
+			usersTextArea.append(System.lineSeparator());
+		}
 	}
 }

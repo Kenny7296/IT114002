@@ -10,12 +10,16 @@ import java.util.Queue;
 public class SocketClient
 {
 	private Socket server;
-	private OnReceive messageListener;
-	
-	public void registerMessageListener(OnReceive listener)
+	private OnReceive onReceiveListener;
+	public void registerListener (OnReceive listener)
 	{
-		this.messageListener = listener;
+		this.onReceiveListener = listener;
 	}
+	
+	//public void registerMessageListener(OnReceive listener)
+	//{
+	//	this.messageListener = listener;
+	//}
 	
 	private Queue<Payload> toServer = new LinkedList<Payload>();
 	private Queue<Payload> fromServer = new LinkedList<Payload>();
@@ -225,65 +229,46 @@ public class SocketClient
 	
 	public void postConnectionData(String clientName)
 	{
-		Payload payload = new Payload(null, clientName);
-		payload.setPayloadType(PayloadType.CONNECT);
-		payload.setMessage(clientName);
+		Payload payload = new Payload(PayloadType.CONNECT, clientName);
 		toServer.add(payload);
 	}
 	
 	public void sendMessage(String message)
 	{
-		Payload payload = new Payload(null, message);
-		payload.setPayloadType(PayloadType.MESSAGE);
-		payload.setMessage(message);
-		toServer.add(payload);
-	}
-	
-	public void sendChoice(String message)
-	{
-		if (message.indexOf("@") > -1)
+		if (message.indexOf("@") == 0)
 		{
-			sendpm(message);
-			return;
-		}
-		 
-		try
-		{
-			Payload payload = new Payload(null, message);
-			payload.setPayloadType(PayloadType.MESSAGE);
-			payload.setMessage(message);
-			toServer.add(payload);
+			sendPM(message);
 		}
 		
-		catch (IOException e)
+		else
 		{
-			e.printStackTrace();
+			Payload payload = new Payload(PayloadType.MESSAGE, message);
+			toServer.add(payload);
 		}
 	}
 	
-	public void sendpm(String message)
+	public void sendPM(String message)
 	{
-		//try
-		//{
-			if (message.indexOf("@") > -1)
+		try
+		{
+			if (message.indexOf("@") == 0)
 			{
 				String[] m = message.split("@");
 				String start = m[1];
 				String[] part = start.split(" ");
 				String clientName = part[0];
-				Payload payload = new Payload(null, message);
-				payload.setPayloadType(PayloadType.DIRECT);
-				payload.setMessage(message);
+				Payload payload = new Payload(PayloadType.DIRECT, message);
+				payload.setTarget(clientName);
 				toServer.add(payload);
 			}
 			
 		}
 		
-		//catch (IOException e)
-		//{
-		//	e.printStackTrace();
-		//}
-	//}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 	
 	private void processPayload(Payload payload)
 	{
@@ -294,25 +279,25 @@ public class SocketClient
 		case CONNECT:
 			msg = String.format("Client \"%s\" has connected", payload.getMessage());
 			System.out.println(msg);
-			if(messageListener != null) {
-				messageListener.onReceivedMessage(msg);
+			if(onReceiveListener != null) {
+				onReceiveListener.onReceivedMessage(msg);
 			}
 			break;
 		case DISCONNECT:
 			msg = String.format("Client \"%s\" has disconnected", payload.getMessage());
 			System.out.println(msg);
-			if(messageListener != null)
+			if(onReceiveListener != null)
 			{
-				messageListener.onReceivedMessage(msg);
+				onReceiveListener.onReceivedMessage(msg);
 			}
 			break;
 		case MESSAGE:
 			System.out.println(
 					String.format("%s", payload.getMessage())
 			);
-			if(messageListener != null)
+			if(onReceiveListener != null)
 			{
-				messageListener.onReceivedMessage(String.format("%s ", payload.getMessage()));
+				onReceiveListener.onReceivedMessage(String.format("%s ", payload.getMessage()));
 			}
 			break;
 		case STATE_SYNC:
@@ -361,4 +346,5 @@ public class SocketClient
 interface OnReceive
 {
 	void onReceivedMessage(String msg);
+	void onReceiveConnection(String name, boolean isConnected);
 }

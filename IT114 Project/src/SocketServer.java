@@ -172,7 +172,7 @@ public class SocketServer
 		broadcast(payload, id);
 	}
 	
-	public synchronized void sendtoClientbyName(String name, Payload payload)
+	public synchronized void sendToClientByName(String name, Payload payload)
 	{
 		for(int i = 0; i < clients.size(); i++)
 		{
