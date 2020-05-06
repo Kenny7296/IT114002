@@ -48,7 +48,6 @@ public class SocketServer
 					e.printStackTrace();
 				}
 			}
-			
 		}
 		
 		catch (IOException e)
