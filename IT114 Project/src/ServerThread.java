@@ -28,16 +28,14 @@ public class ServerThread extends Thread
 	void broadcastConnected()
 	{
 		System.out.println(this.clientName + " Broadcast connected");
-		Payload payload = new Payload(null, clientName);
-		payload.setPayloadType(PayloadType.CONNECT);
+		Payload payload = new Payload(PayloadType.CONNECT, clientName);
 		server.broadcast(payload, this.clientName);
 	}
 	
 	void broadcastDisconnected()
 	{
-		Payload payload = new Payload(null, clientName);
-		payload.setPayloadType(PayloadType.DISCONNECT);
-		server.broadcast(payload, this.clientName);
+		Payload payload = new Payload(PayloadType.DISCONNECT, clientName);
+		server.broadcast(payload);
 	}
 	
 	public boolean send(Payload payload)
@@ -60,9 +58,7 @@ public class ServerThread extends Thread
 	@Deprecated
 	public boolean send(String message)
 	{
-		Payload payload = new Payload(null, message);
-		payload.setPayloadType(PayloadType.MESSAGE);
-		payload.setMessage(message);
+		Payload payload = new Payload(PayloadType.MESSAGE, message);
 		return send(payload);
 	}
 	

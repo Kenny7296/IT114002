@@ -15,11 +15,6 @@ public class SocketClient
 		this.onReceiveListener = listener;
 	}
 	
-	//public void registerMessageListener(OnReceive listener)
-	//{
-	//	this.messageListener = listener;
-	//}
-	
 	private Queue<Payload> toServer = new LinkedList<Payload>();
 	private Queue<Payload> fromServer = new LinkedList<Payload>();
 	

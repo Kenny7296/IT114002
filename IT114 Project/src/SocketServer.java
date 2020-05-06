@@ -165,9 +165,7 @@ public class SocketServer
 	
 	public synchronized void broadcast(String message, long id)
 	{
-		Payload payload = new Payload(null, message);
-		payload.setPayloadType(PayloadType.MESSAGE);
-		payload.setMessage(message);
+		Payload payload = new Payload(PayloadType.MESSAGE, message);
 		broadcast(payload, id);
 	}
 	
