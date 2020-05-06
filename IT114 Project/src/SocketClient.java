@@ -227,21 +227,7 @@ public class SocketClient
 		toServer.add(payload);
 	}
 	
-	public void sendMessage(String message)
-	{
-		if (message.indexOf("@") == 0)
-		{
-			sendPM(message);
-		}
-		
-		else
-		{
-			Payload payload = new Payload(PayloadType.MESSAGE, message);
-			toServer.add(payload);
-		}
-	}
-	
-	public void sendPM(String message)
+	public void sendPM(String message, String person)
 	{
 		try
 		{
@@ -255,12 +241,39 @@ public class SocketClient
 				payload.setTarget(clientName);
 				toServer.add(payload);
 			}
-			
 		}
 		
 		catch (Exception e)
 		{
 			e.printStackTrace();
+		}
+	}
+	
+	String doBold(String message)
+	{
+		return message.replace("boldTrigger", "<b>");
+	}
+	
+	String doItalic(String message)
+	{
+		return message.replace("italicTrigger", "<i>");
+	}
+	
+	public void sendMessage(String message)
+	{
+		message = doBold(message);
+		message = doItalic(message);
+		
+		if (message.indexOf("@") == 0)
+		{
+			sendPM(message, "");
+			return;
+		}
+		
+		else
+		{
+			Payload payload = new Payload(PayloadType.MESSAGE, message);
+			toServer.add(payload);
 		}
 	}
 	
@@ -274,7 +287,7 @@ public class SocketClient
 			msg = String.format("Client \"%s\" has connected", payload.getMessage());
 			System.out.println(msg);
 			if(onReceiveListener != null) {
-				onReceiveListener.onReceivedMessage(msg);
+				onReceiveListener.onReceiveConnection(payload.getMessage(), true);
 			}
 			break;
 		case DISCONNECT:
@@ -282,7 +295,7 @@ public class SocketClient
 			System.out.println(msg);
 			if(onReceiveListener != null)
 			{
-				onReceiveListener.onReceivedMessage(msg);
+				onReceiveListener.onReceiveConnection(payload.getMessage(), false);
 			}
 			break;
 		case MESSAGE:
