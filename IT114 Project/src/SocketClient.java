@@ -345,9 +345,5 @@ public class SocketClient
 interface OnReceive
 {
 	void onReceivedMessage(String msg);
-<<<<<<< HEAD
 	void onReceiveConnection(String name, boolean isConnected);
 }
-=======
-}
->>>>>>> 6bb0acec31acf89c60a36c334d094569135ffa24
