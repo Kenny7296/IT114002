@@ -146,6 +146,7 @@ public class SocketServer
 	{
 		System.out.println("Sending message to " + clients.size() + " clients");
 		
+		//payload.setMessage("<html>" + payload.getMessage()+"</html>");
 		Iterator<ServerThread> iter = clients.iterator();
 		while(iter.hasNext())
 		{

@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
@@ -17,12 +18,13 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.text.Document;
 
 @SuppressWarnings("serial")
 public class ChatUI extends JFrame implements OnReceive
 {
 	static SocketClient client;
-	static JTextArea chatLog;
+	static JEditorPane chatLog;
 	static JTextArea history;
 	List<String> users = new ArrayList<String>();
 	// create text area for displaying/ users
@@ -63,8 +65,9 @@ public class ChatUI extends JFrame implements OnReceive
 		chatRoom.setLayout(new BorderLayout());
 		
 		// create text area for messages
-		JTextArea chatTextArea = new JTextArea();
+		JEditorPane chatTextArea= new JEditorPane();
 		chatLog = chatTextArea;
+		chatTextArea.setContentType("text/html");
 		
 		// don't let the user edit either of these areas directly
 		chatTextArea.setEditable(false);
@@ -205,8 +208,22 @@ public class ChatUI extends JFrame implements OnReceive
 	public void onReceivedMessage(String msg)
 	{
 		System.out.println(msg);
-		chatLog.append(msg);
-		chatLog.append(System.lineSeparator());
+		
+		public append(String s)
+		{
+		   try
+		   {
+		      Document doc = chatLog.getDocument();
+		      doc.insertString(doc.getLength(), msg, null);
+		   }
+		   
+		   catch(BadLocationException exc)
+		   {
+		      exc.printStackTrace();
+		   }
+		}
+		//chatLog.append(msg);
+		//chatLog.append(System.lineSeparator());
 	}
 
 	@Override

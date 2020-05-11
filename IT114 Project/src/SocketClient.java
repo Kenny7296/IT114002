@@ -251,27 +251,31 @@ public class SocketClient
 	
 	String doBold(String message)
 	{
-		return message.replace("boldTrigger", "<b>");
+		return message.replace(" **", "<b>").replace("** ", "</b>");
 	}
 	
 	String doItalic(String message)
 	{
-		return message.replace("italicTrigger", "<i>");
+		return message.replace(" *", "<i>").replace("* ", "</i>");
 	}
 	
 	public void sendMessage(String message)
 	{
+		message = "<html>" + message;
+		
 		message = doBold(message);
 		message = doItalic(message);
 		
 		if (message.indexOf("@") == 0)
-		{
+		{ 
+			message += "</html>";
 			sendPM(message, "");
 			return;
 		}
 		
 		else
 		{
+			message += "</html>";
 			Payload payload = new Payload(PayloadType.MESSAGE, message);
 			toServer.add(payload);
 		}
@@ -299,18 +303,12 @@ public class SocketClient
 			}
 			break;
 		case MESSAGE:
-			System.out.println(
-					String.format("%s", payload.getMessage())
-			);
 			if(onReceiveListener != null)
 			{
 				onReceiveListener.onReceivedMessage(String.format("%s ", payload.getMessage()));
 			}
 			break;
 		case STATE_SYNC:
-			//if(onReceiveListener != null) {
-			//	onReceiveListener.onReceiveConnection(payload.getMessage(), true);
-			//}
 			System.out.println("Sync");
 			break;
 		default:
