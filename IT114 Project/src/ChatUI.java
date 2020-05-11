@@ -126,22 +126,12 @@ public class ChatUI extends JFrame implements OnReceive
 		JButton connect = new JButton();
 		connect.setPreferredSize(new Dimension (100, 30));
 		connect.setText("Connect");
-		connect.addActionListener(new ActionListener()
-		{		
-				@Override
-				public void actionPerformed(ActionEvent e)
-				{
-					String username = usernameField.getText();
-					usersTextArea.append(username);
-				}
-			}
-		);
 		
 		connect.addActionListener(new ActionListener()
 		{
-		    @Override
-		    public void actionPerformed(ActionEvent e)
-		    {
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
 		    	client = new SocketClient();
 		    	int _port = -1;
 		    	

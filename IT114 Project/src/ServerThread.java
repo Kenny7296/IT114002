@@ -29,7 +29,7 @@ public class ServerThread extends Thread
 	{
 		System.out.println(this.clientName + " Broadcast connected");
 		Payload payload = new Payload(PayloadType.CONNECT, clientName);
-		server.broadcast(payload, this.clientName);
+		server.broadcast(payload);
 	}
 	
 	void broadcastDisconnected()
@@ -109,7 +109,8 @@ public class ServerThread extends Thread
 				m = WordBlackList.filter(m);
 				this.clientName = m;
 			}
-			broadcastConnected();
+			//broadcastConnected();
+			server.syncUsers(this);
 			break;
 		case DISCONNECT:
 			System.out.println("Received disconnect");

@@ -308,6 +308,9 @@ public class SocketClient
 			}
 			break;
 		case STATE_SYNC:
+			//if(onReceiveListener != null) {
+			//	onReceiveListener.onReceiveConnection(payload.getMessage(), true);
+			//}
 			System.out.println("Sync");
 			break;
 		default:

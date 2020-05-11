@@ -22,6 +22,15 @@ public class SocketServer
 		return ClientID;
 	}
 	
+	public void syncUsers(ServerThread st)
+	{
+		for (int i = 0; i < clients.size(); i++)
+		{
+			Payload p = new Payload(PayloadType.CONNECT, clients.get(i).getClientName());
+			st.send(p);
+		}
+	}
+	
 	private void start(int port)
 	{
 		this.port = port;
