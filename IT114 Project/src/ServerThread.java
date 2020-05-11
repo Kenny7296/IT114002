@@ -118,6 +118,7 @@ public class ServerThread extends Thread
 			payload.setMessage(WordBlackList.filter(payload.getMessage()));
 			server.broadcast(payload, this.clientName);
 		case DIRECT:
+			payload.setMessage(WordBlackList.filter(payload.getMessage()));
 			server.sendToClientByName(payload.getTarget(), payload);
 			break;
 		default:

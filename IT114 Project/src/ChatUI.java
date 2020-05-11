@@ -132,7 +132,7 @@ public class ChatUI extends JFrame implements OnReceive
 				public void actionPerformed(ActionEvent e)
 				{
 					String username = usernameField.getText();
-					usersTextArea.append("\n" + username);
+					usersTextArea.append(username);
 				}
 			}
 		);

@@ -80,7 +80,7 @@ public class SocketClient
 			return;
 		}
 		
-		System.out.println("Client Started");
+		System.out.println("Client Started!");
 		try(	ObjectOutputStream out = new ObjectOutputStream(server.getOutputStream());
 				ObjectInputStream in = new ObjectInputStream(server.getInputStream());)
 		{
@@ -117,7 +117,7 @@ public class SocketClient
 					
 					catch(Exception e)
 					{
-						System.out.println("Client shutdown");
+						System.out.println("Client shutdown.");
 					}
 					
 					finally
@@ -143,7 +143,7 @@ public class SocketClient
 							fromServer.add(p);
 						}
 						
-						System.out.println("Stopping server listen thread");
+						System.out.println("Stopping server listen thread.");
 					}
 					
 					catch (Exception e)
@@ -151,12 +151,12 @@ public class SocketClient
 						if(!server.isClosed())
 						{
 							e.printStackTrace();
-							System.out.println("Server closed connection");
+							System.out.println("Server closed connection.");
 						}
 						
 						else
 						{
-							System.out.println("Connection closed");
+							System.out.println("Connection closed.");
 						}
 					}
 					
@@ -206,7 +206,7 @@ public class SocketClient
 				Thread.sleep(50);
 			}
 			
-			System.out.println("Exited loop");
+			System.out.println("Exited loop.");
 			System.exit(0);
 		}
 		
@@ -323,7 +323,7 @@ public class SocketClient
 			try
 			{
 				server.close();
-				System.out.println("Closed socket");
+				System.out.println("Closed socket.");
 			}
 			
 			catch (IOException e)

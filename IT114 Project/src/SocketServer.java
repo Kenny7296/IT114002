@@ -169,6 +169,18 @@ public class SocketServer
 		broadcast(payload, id);
 	}
 	
+	/*
+	public synchronized void test(Payload payload, String name)
+	{
+		int from = ServerThread.getClientName(name);
+		String msg = payload.getMessage();
+		payload.setMessage(
+				(from>-1?"Client[" + from+"]":"unknown") 
+				+ (msg != null?": "+ msg:"")
+		);
+	}
+	*/
+	
 	public synchronized void sendToClientByName(String name, Payload payload)
 	{
 		for(int i = 0; i < clients.size(); i++)
